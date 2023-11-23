@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# Get brightness
+get_backlight_percent() {
+	echo $(printf "%.0f\n" $(brightnessctl -m | awk -F, '{print substr($4, 0, length($4)-1)}'))
+}
+
+get_backlight() {
+	VALUE=$(get_backlight_percent)
+	echo "${VALUE}%"
+}
+
+# Notify
+notify_user() {
+	notify-send -h string:x-canonical-private-synchronous:sys-notify -u low "Brightness : $(get_backlight)"
+}
+
+# Increase brightness
+inc_backlight() {
+    VALUE=$(($(get_backlight_percent) + 10))
+	brightnessctl set "${VALUE}%" && notify_user
+}
+
+# Decrease brightness
+dec_backlight() {
+    VALUE=$(($(get_backlight_percent) - 10))
+    if (( $VALUE < 10)); then
+        VALUE=10
+    fi
+	brightnessctl set "${VALUE}%" && notify_user
+}
+
+# Execute accordingly
+if [[ "$1" == "--get" ]]; then
+	brightnessctl g
+elif [[ "$1" == "--inc" ]]; then
+	inc_backlight
+elif [[ "$1" == "--dec" ]]; then
+	dec_backlight
+else
+	get_backlight
+fi
