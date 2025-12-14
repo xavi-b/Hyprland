@@ -1,4 +1,5 @@
 *
+!deploy.py
 !.gitignore
 !.config/
 !.config/**
